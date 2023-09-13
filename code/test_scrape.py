@@ -10,6 +10,8 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
+google_jobs_df = pd.DataFrame()
+
 def scrape_google_jobs(google_jobs_df, postings):
     
     # using sing selenium to launch and scroll through the Google Jobs page
@@ -67,3 +69,5 @@ def scrape_google_jobs(google_jobs_df, postings):
     google_jobs_df = google_jobs_df.reset_index().drop(columns=['index'])
     
     return google_jobs_df
+
+scrape_google_jobs(google_jobs_df, 30)
