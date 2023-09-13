@@ -50,8 +50,7 @@ def scrape_google_jobs(google_jobs_df, postings):
     jobs_done = 0
     
     for li_descr in lis_descr[0:postings]:
-        driver.execute_script('arguments[0].scrollIntoView({block: "center", behavior: "smooth"});', li_descr)
-
+    
         for key in xpaths:
 
             try:
