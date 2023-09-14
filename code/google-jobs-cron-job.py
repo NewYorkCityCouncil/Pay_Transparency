@@ -48,9 +48,9 @@ def scrape_google_jobs(url, final_path_location, postings):
      'Scraped Salary'  :".//span[@class='LL4CDc' and contains(@aria-label,'Salary')]/span",
      'Job Highlights'  :"./div/div[4]/div[1]/div[2]/g-expandable-container/div/g-expandable-content[2]/span",
      'Job Description' :"./div/div[5]/div/span",
-     'Any Other Text'  :"./div/div[4]/div/span"
+     'Any Other Text'  :"./div/div[4]" 
     }
-
+    
     scrolls_to_do = postings # setting number of job postings to be scraped
     scrolls_done = 0
     data = {key:[] for key in xpaths} # data will be added to this dict
@@ -58,10 +58,11 @@ def scrape_google_jobs(url, final_path_location, postings):
     # stay in while loop until desired number of postings have been scrolled to
     while scrolls_done < scrolls_to_do: 
         lis_scr = driver.find_elements(By.XPATH, "//li[@data-ved]//div[@role='treeitem']/div/div") # path to section of page where user can scroll through job postings 
+        #print('lis length=',len(lis_scr), f'{scrolls_done=}', end='\r')
         
         if (len(lis_scr) == scrolls_done) and (scrolls_to_do - scrolls_done) > 0: # in case the postings variable exceeds number of available job posting entries (otherwise code will be stuck in infinite loop)
         
-            # print('\nNote: requested # of postings greater than available postings')
+            print('\nNote: requested # of postings greater than available postings')
             scrolls_to_do = len(lis_scr) # resetting scrolls_to_do to the max length of lis_scr so can break out of while loop
             
         # scrolling down the page to make desired number of job postings load, therefore making them accessible for scraping
@@ -85,6 +86,9 @@ def scrape_google_jobs(url, final_path_location, postings):
                 t = li_descr.find_element(By.XPATH, xpaths[key]).get_attribute('innerText')
             except NoSuchElementException: # if can't find, indicate with text
                 t = '*missing data*'
+            if t == '': # in cases where element exists but is just ''
+                t='*missing data*'
+                
             data[key].append(t) # add to data dict
             
         jobs_done += 1
@@ -92,6 +96,12 @@ def scrape_google_jobs(url, final_path_location, postings):
         time.sleep(.2)
 
     scraped_df = pd.DataFrame(data) # convert to df
+    
+    for ind in scraped_df.index: # Any Other Text collects full text for posting... only worth keeping if Job Highlights and Description are empty, otherwise redundant info just taking up space
+        
+        if (scraped_df['Job Highlights'][ind] != '*missing data*') and (scraped_df['Job Description'][ind] != '*missing data*'):
+            
+            scraped_df.loc[ind, 'Any Other Text'] = np.nan # erasing this text if either Job Highlights or Description is present
     
     path = final_path_location 
     
@@ -103,7 +113,7 @@ def scrape_google_jobs(url, final_path_location, postings):
     else: # otherwise, create new file at this path (for first time function is run)
         scraped_df.to_csv(path, index = False)
     
-    return  
+    return   
 
 scrape_google_jobs(google_jobs_url, google_jobs_df_path, 150)
 
