@@ -62,7 +62,7 @@ def scrape_google_jobs(url, final_path_location, postings):
         
         if (len(lis_scr) == scrolls_done) and (scrolls_to_do - scrolls_done) > 0: # in case the postings variable exceeds number of available job posting entries (otherwise code will be stuck in infinite loop)
         
-            print('\nNote: requested # of postings greater than available postings')
+            # print('\nNote: requested # of postings greater than available postings')
             scrolls_to_do = len(lis_scr) # resetting scrolls_to_do to the max length of lis_scr so can break out of while loop
             
         # scrolling down the page to make desired number of job postings load, therefore making them accessible for scraping
@@ -129,7 +129,7 @@ def scrape_extra_columns(url, final_path_location, postings):
     options.add_argument('headless')
 
     # using sing selenium to launch and scroll through the Google Jobs page
-    url = 'https://www.google.com/search?q=jobs&oq=google+jobs+data+analyst&aqs=chrome..69i57j69i59j0i512j0i22i30i625l4j69i60.4543j0j7&sourceid=chrome&ie=UTF-8&ibp=htl;jobs&sa=X&ved=2ahUKEwjXsv-_iZP9AhVPRmwGHX5xDEsQutcGKAF6BAgPEAU&sxsrf=AJOqlzWGHNISzgpAUCZBmQA1mWXXt3I7gA:1676311105893#fpstate=tldetail&htivrt=jobs&htichips=city:Owg_06VPwoli_nfhBo8LyA%3D%3D&htischips=city;Owg_06VPwoli_nfhBo8LyA%3D%3D:New%20York_comma_%20NY&htilrad=8.0467&htidocid=1R7H3j_x2GhpVLK0AAAAAA%3D%3D'
+    url = url
     driver = webdriver.Chrome(options=options)
     
     user_agent = driver.execute_script("return navigator.userAgent;")
@@ -153,6 +153,7 @@ def scrape_extra_columns(url, final_path_location, postings):
     # stay in while loop until desired number of postings have been scrolled to and scraped 
     while jobs_done < jobs_to_do: 
         lis = driver.find_elements(By.XPATH, "//li[@data-ved]//div[@role='treeitem']/div/div") # path to section of page where user can scroll through job postings 
+        # print('lis length=',len(lis), f'{jobs_done=}', end='\r')
         
         if (len(lis) == jobs_done) and (jobs_to_do - jobs_done) > 0: # in case the postings variable exceeds number of available job posting entries (otherwise code will be stuck in infinite loop)
         
@@ -186,6 +187,6 @@ def scrape_extra_columns(url, final_path_location, postings):
     else: # otherwise, create new file at this path (for first time function is run)
         cols_to_add.to_csv(path, index = False)    
         
-    return 
+    return  
 
 scrape_extra_columns(google_jobs_url, extra_columns_df_path, 150) 
