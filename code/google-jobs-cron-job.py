@@ -47,7 +47,8 @@ def scrape_google_jobs(url, final_path_location, postings):
      'Posted'          :"./div/div[3]/div[1]/span[2]/span",
      'Scraped Salary'  :".//span[@class='LL4CDc' and contains(@aria-label,'Salary')]/span",
      'Job Highlights'  :"./div/div[4]/div[1]/div[2]/g-expandable-container/div/g-expandable-content[2]/span",
-     'Job Description' :"./div/div[5]/div/span"
+     'Job Description' :"./div/div[5]/div/span",
+     'Any Other Text'  :"./div/div[4]/div/span"
     }
 
     scrolls_to_do = postings # setting number of job postings to be scraped
