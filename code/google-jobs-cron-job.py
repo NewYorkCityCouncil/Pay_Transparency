@@ -14,9 +14,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 google_jobs_url = 'https://www.google.com/search?q=jobs&oq=google+jobs+data+analyst&aqs=chrome..69i57j69i59j0i512j0i22i30i625l4j69i60.4543j0j7&sourceid=chrome&ie=UTF-8&ibp=htl;jobs&sa=X&ved=2ahUKEwjXsv-_iZP9AhVPRmwGHX5xDEsQutcGKAF6BAgPEAU&sxsrf=AJOqlzWGHNISzgpAUCZBmQA1mWXXt3I7gA:1676311105893#fpstate=tldetail&htivrt=jobs&htichips=city:Owg_06VPwoli_nfhBo8LyA%3D%3D,date_posted:today&htischips=city;Owg_06VPwoli_nfhBo8LyA%3D%3D:New%20York_comma_%20NY,date_posted;today&htilrad=24.1401&htidocid=9dwQD_uVzp1Nu-9BAAAAAA%3D%3D'
 
 # path to CSV where google jobs dataset will be held
-google_jobs_df_path = '/home/rachel/pay-transparency/data/output/google-jobs-cronjob.csv' # need to change path when put on server
+google_jobs_df_path = '/home/rachel/pay-transparency/data/output/google-jobs-cronjob.csv' 
 # path to CSV where extra column data will be held
-extra_columns_df_path = '/home/rachel/pay-transparency/data/output/google-jobs-extra-cols-cronjob.csv' # need to change path when put on server
+extra_columns_df_path = '/home/rachel/pay-transparency/data/output/google-jobs-extra-cols-cronjob.csv' 
 
 # function that scrapes data from the Google Jobs job description pages
 
