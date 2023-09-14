@@ -60,7 +60,7 @@ def scrape_google_jobs(url, final_path_location, postings):
         
         if (len(lis_scr) == scrolls_done) and (scrolls_to_do - scrolls_done) > 0: # in case the postings variable exceeds number of available job posting entries (otherwise code will be stuck in infinite loop)
         
-            print('\nNote: requested # of postings greater than available postings')
+            # print('\nNote: requested # of postings greater than available postings')
             scrolls_to_do = len(lis_scr) # resetting scrolls_to_do to the max length of lis_scr so can break out of while loop
             
         # scrolling down the page to make desired number of job postings load, therefore making them accessible for scraping
@@ -145,7 +145,7 @@ def scrape_extra_columns(url, final_path_location, postings):
         
         if (len(lis) == jobs_done) and (jobs_to_do - jobs_done) > 0: # in case the postings variable exceeds number of available job posting entries (otherwise code will be stuck in infinite loop)
         
-            print('\nNote: requested # of postings greater than available postings')
+            # print('\nNote: requested # of postings greater than available postings')
             jobs_to_do = len(lis) # resetting scrolls_to_do to the max length of lis_scr so can break out of while loop
         
         # scrolling down the page to make desired number of job postings load, therefore making them accessible for scraping
