@@ -145,7 +145,8 @@ def scrape_google_jobs(url, scroll_path_location, descr_path_location, postings)
     if os.path.exists(descr_path): # if CSV already exists at the specified path, add the new data found in descr_scraped_df 
         descr_original_df = pd.read_csv(descr_path) # convert existing CSV to df
         descr_original_df = pd.concat([descr_original_df,descr_scraped_df]) # add new data
-        descr_original_df = descr_original_df.drop_duplicates(subset=['Role','Company','Location','Scraped Salary','Job Highlights','Job Description', 'Any Other Text']) # drop entries with identical data in these columns... leaving Posted out of this in case duplicates are posted at dif times
+        # drop entries with identical data in these columns... leaving Posted and All Sources Listed out of this in case duplicates are posted at dif times/ from dif sites
+        descr_original_df = descr_original_df.drop_duplicates(subset=['Role','Company','Location','Scraped Salary','Job Highlights','Job Description', 'Any Other Text']) 
         descr_original_df.to_csv(descr_path, index = False) # redownloading updated df to the specified path
     else: # otherwise, create new file at this path (for first time function is run)
         descr_scraped_df.to_csv(descr_path, index = False)  
