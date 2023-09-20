@@ -86,14 +86,15 @@ def scrape_google_jobs(url, scroll_path_location, descr_path_location, postings)
     
     # column names and paths to desired data in job description page section of website
     xpaths_descr = { 
-         'Role'            :"./div/div[1]/div/div[1]/h2",
-         'Company'         :"./div/div[1]/div/div[2]/div[2]/div[1]",
-         'Location'        :"./div/div[1]/div/div[2]/div[2]/div[2]",
-         'Posted'          :"./div/div[3]/div[1]/span[2]/span",
-         'Scraped Salary'  :".//span[@class='LL4CDc' and contains(@aria-label,'Salary')]/span",
-         'Job Highlights'  :"./div/div[4]/div[1]/div[2]/g-expandable-container/div/g-expandable-content[2]/span",
-         'Job Description' :"./div/div[5]/div/span",
-         'Any Other Text'  :"./div/div[4]" 
+         'Role'               :"./div/div[1]/div/div[1]/h2",
+         'Company'            :"./div/div[1]/div/div[2]/div[2]/div[1]",
+         'Location'           :"./div/div[1]/div/div[2]/div[2]/div[2]",
+         'Posted'             :"./div/div[3]/div[1]/span[2]/span",
+         'All Sources Listed' :".//div[@class='B8oxKe BQC79e xXyUwe']",
+         'Scraped Salary'     :".//span[@class='LL4CDc' and contains(@aria-label,'Salary')]/span",
+         'Job Highlights'     :"./div/div[4]/div[1]/div[2]/g-expandable-container/div/g-expandable-content[2]/span",
+         'Job Description'    :"./div/div[5]/div/span",
+         'Any Other Text'     :"./div/div[4]" 
         }
     
     descr_done = 0
