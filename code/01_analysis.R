@@ -1,7 +1,11 @@
 source("code/00_load_dependencies.R")
 
 indeed_df <- read.csv("data/output/Indeed_scrape_daily_compiliation.csv")
-boros_df <- read.csv("data/output/Indeed_scrape_boros_compiliation.csv")
+#boros_df <- read.csv("data/output/Indeed_scrape_boros_compiliation.csv")
+#indeed_test_df <- read.csv("~/Desktop/Indeed_scrape_daily_compiliation.csv")
+#bk_df <- read.csv("~/Desktop/Indeed_scrape_bk_compiliation.csv")
+#test <- read.csv("~/Desktop/test.csv")
+#google_df <- read.csv("~/Desktop/google-jobs-cronjob.csv")
 
 
 look <- (boros_df %>%
@@ -17,12 +21,6 @@ boros_df %>%
   View()
 
 ### Prepping data
-# Looking at all potential duplicates
-indeed_df %>%
-  group_by_all() %>%
-  filter(n()>1) %>%
-  ungroup() %>% 
-  View()
 
 ## NOTES: Cannot think of a way to remove duplicates without some (pot) large assumptions.
 ##.       1) Post dates can be the same if they have multiple positions available.
@@ -43,14 +41,14 @@ indeed_df <- indeed_df %>%
   mutate(lower_salary = ifelse(is_salary_range,parse_number(str_extract_all(salary_snippet,"\\$([0-9,.]+)")[[1]][1]),NA), # Grab lower and upper salaries
          upper_salary = ifelse(is_salary_range, parse_number(str_extract_all(salary_snippet,"\\$([0-9,.]+)")[[1]][2]),NA),
          salary_diff = ifelse(salary_provided & is_salary_range, upper_salary - lower_salary, NA),
-         diff_perc_of_lower_salary = ifelse(!is.na(salary_diff),salary_diff/lower_salary,NA)
+         salary_ratio = ifelse(!is.na(salary_diff),upper_salary/lower_salary,NA)
          )
 
 ## NOTES: I'm treating "Estimated..." and "NA"s the same as the salary was both not provided.
 
 ### EDA
 # Table of salaries provided
-table(indeed_df$salary_provided)
+table(indeed_df$salary_provided)/nrow(indeed_df)
 
 # How many posts are posted per hour?
 indeed_df %>%
@@ -63,24 +61,54 @@ indeed_df %>%
   scale_x_discrete(breaks = function(x){x[c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE)]})+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
 
+# Particular day most postings are done normalized by week total
+indeed_df %>%
+  mutate(weekday_posted = wday(strptime(date_scraped, "%m/%d/%Y %H:%M:%S"),label = TRUE),
+         week_posted = week(strptime(date_scraped, "%m/%d/%Y %H:%M:%S"))) %>%
+  group_by(weekday_posted, week_posted) %>%
+  summarise(count = n()) %>%
+  ungroup() %>%
+  group_by(week_posted) %>%
+  mutate(weekday_normalized = count/sum(count)) %>% View()
+  group_by(weekday_posted) %>%
+  summarise(wday_sum = sum(weekday_normalized)) %>%
+  ggplot(.,aes(x=weekday_posted, y = wday_sum, group = 1)) +
+  geom_line() +
+  geom_point() +
+  theme_nycc() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+# Particular hour most postings are done normalized by day total
+indeed_df %>%
+  mutate(hour_posted = hour(strptime(date_scraped, "%m/%d/%Y %H:%M:%S"))) %>%
+  group_by(hour_posted) %>%
+  summarise(count = n()) %>%
+  ggplot(.,aes(x=hour_posted, y = count, group = 1)) +
+  geom_line() +
+  geom_point() +
+  theme_nycc() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
 # Annual salary difference distribution
 # Histogram overlaid with kernel density curve
 ggplot(indeed_df %>%
          filter(
-                salary_provided == 1), aes(x=diff_perc_of_lower_salary)) + 
+                salary_provided == 1), aes(x=salary_ratio)) + 
   geom_histogram(aes(y=..density..),
                  colour="black", fill="white") +
   geom_density(alpha=.2, fill="#FF6666")
 
 # What are these jobs that have high ratios?
+job_titles_to_exclude = c("On-Site Healthcare Pre-Screening")
 salary_year_diff_1 <- indeed_df %>%
-  filter(diff_perc_of_lower_salary > 1,
-         salary_provided == 1)
+  filter(salary_ratio > 2,
+         salary_provided == 1,
+         !grepl( job_titles_to_exclude, job_title, fixed = TRUE))
 
 salary_year_diff_1 %>%
   distinct(.keep_all = TRUE) %>%
-  select(job_title, company_name, salary_snippet, salary_diff, diff_perc_of_lower_salary) %>%
-  arrange(desc(diff_perc_of_lower_salary)) %>%
+  select(job_title, company_name, salary_snippet, salary_diff, salary_ratio) %>%
+  arrange(desc(salary_ratio)) %>%
   gt() %>%
   gt_theme_nytimes() %>%
   tab_header(
@@ -88,5 +116,5 @@ salary_year_diff_1 %>%
     subtitle = glue::glue("With salary ranges greater than their lower bound")
   ) %>%
   fmt_currency(columns = salary_diff) %>%
-  fmt_percent(columns = diff_perc_of_lower_salary)
+  fmt_percent(columns = salary_ratio)
 
