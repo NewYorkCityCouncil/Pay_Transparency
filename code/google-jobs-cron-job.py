@@ -19,6 +19,18 @@ google_jobs_url = 'https://www.google.com/search?q=jobs&oq=google+jobs+data+anal
 descr_df_path = '/home/rachel/pay-transparency/data/output/google-jobs-cronjob.csv' 
 scroll_df_path = '/home/rachel/pay-transparency/data/output/google-jobs-extra-cols-cronjob.csv'
 
+# randomizing user agent from list found on https://udger.com/resources/ua-list/browser-detail?browser=Chrome
+# trying to prevent banning/ limiting
+
+ua_file = pd.read_csv('/home/rachel/pay-transparency/data/input/userAgent_client_hints.csv').rename(columns={'1':'User Agent'})
+
+def get_random_ua(ua_df):
+    
+    random_num = random.choice(list(range(0,12)))
+    user_agent = ua_df['User Agent'].loc[random_num]
+    
+    return user_agent
+
 # function that scrapes data from Google Jobs
 
 def scrape_google_jobs(url, scroll_path_location, descr_path_location, postings):
@@ -35,7 +47,7 @@ def scrape_google_jobs(url, scroll_path_location, descr_path_location, postings)
     url = url
     driver = webdriver.Chrome(options=options)
     
-    user_agent = driver.execute_script("return navigator.userAgent;")
+    user_agent = get_random_ua(ua_file) # driver.execute_script("return navigator.userAgent;")
     user_agent = user_agent.replace("HeadlessChrome","Chrome")
     driver.execute_cdp_cmd('Network.setUserAgentOverride',{"userAgent": f'{user_agent}'})
     
@@ -96,7 +108,7 @@ def scrape_google_jobs(url, scroll_path_location, descr_path_location, postings)
          'Job Description'    :"./div/div[5]/div/span",
          'Any Other Text'     :"./div/div[4]" 
         }
-    
+
     descr_done = 0
     data_descr = {key:[] for key in xpaths_descr} # data will be added to this dict
     data_descr['Date Scraped'] = []
@@ -123,6 +135,7 @@ def scrape_google_jobs(url, scroll_path_location, descr_path_location, postings)
         time.sleep(.2)
         
     descr_scraped_df = pd.DataFrame(data_descr) # convert to df
+
     
     for ind in descr_scraped_df.index: # Any Other Text collects full text for posting... only worth keeping if Job Highlights and Description are both empty, otherwise redundant info just taking up space
         
@@ -145,12 +158,11 @@ def scrape_google_jobs(url, scroll_path_location, descr_path_location, postings)
     if os.path.exists(descr_path): # if CSV already exists at the specified path, add the new data found in descr_scraped_df 
         descr_original_df = pd.read_csv(descr_path) # convert existing CSV to df
         descr_original_df = pd.concat([descr_original_df,descr_scraped_df]) # add new data
-        # drop entries with identical data in these columns... leaving Posted and All Sources Listed out of this in case duplicates are posted at dif times/ from dif sites
-        descr_original_df = descr_original_df.drop_duplicates(subset=['Role','Company','Location','Scraped Salary','Job Highlights','Job Description', 'Any Other Text']) 
+        descr_original_df = descr_original_df.drop_duplicates(subset=['Role','Company','Location','Scraped Salary','Job Highlights','Job Description', 'Any Other Text']) # drop entries with identical data in these columns... leaving Posted and All Sources Listed out of this in case duplicates are posted at dif times/ from dif sites
         descr_original_df.to_csv(descr_path, index = False) # redownloading updated df to the specified path
     else: # otherwise, create new file at this path (for first time function is run)
         descr_scraped_df.to_csv(descr_path, index = False)  
     
-    return  
+    return 
 
 scrape_google_jobs(google_jobs_url, scroll_df_path, descr_df_path, 150)
