@@ -23,10 +23,11 @@ scroll_df_path = '/home/rachel/pay-transparency/data/output/google-jobs-extra-co
 # trying to prevent banning/ limiting
 
 ua_file = pd.read_csv('/home/rachel/pay-transparency/data/input/userAgent_client_hints.csv').rename(columns={'1':'User Agent'})
+ua_file = ua_file.drop(index=[2,9,10,11]) # dropping mobile user agents
 
 def get_random_ua(ua_df):
     
-    random_num = random.choice(list(range(0,12)))
+    random_num = random.choice(list(range(0,9)))
     user_agent = ua_df['User Agent'].loc[random_num]
     
     return user_agent
